@@ -1,39 +1,41 @@
 # 🎯 Rummy Score Tracker - Deployment & iPhone Installation Guide
 
-## 📦 Step 1: Push to GitHub
+## 📦 Step 1: Create GitHub Repository (REQUIRED FIRST)
 
 ### Create GitHub Repository
-1. Go to [GitHub.com](https://github.com) and sign in
+1. Go to [GitHub.com](https://github.com) and sign in as **Kiran200790**
 2. Click the "+" icon → "New repository"
 3. Repository name: `rummy-score-tracker`
 4. Set it to **Public** (required for GitHub Pages)
-5. Click "Create repository"
+5. **DO NOT** initialize with README (we already have files)
+6. Click "Create repository"
 
-### Push Your Code
+### Your Repository URL
+Once created, your repository will be at:
+`https://github.com/Kiran200790/rummy-score-tracker`
+
+## 🚀 Step 2: Push Code (Ready to Run)
+
+The remote is already configured. Just run:
 ```bash
-# Add your GitHub repository as remote (replace YOUR_USERNAME)
-git remote add origin https://github.com/YOUR_USERNAME/rummy-score-tracker.git
-
-# Push to GitHub
-git branch -M main
 git push -u origin main
 ```
 
-## 🌐 Step 2: Enable GitHub Pages
+## 🌐 Step 3: Enable GitHub Pages
 
-1. Go to your repository on GitHub
+1. Go to your repository: `https://github.com/Kiran200790/rummy-score-tracker`
 2. Click **Settings** tab
 3. Scroll down to **Pages** section (left sidebar)
 4. Under "Source", select **GitHub Actions**
 5. The workflow will automatically deploy your app
 
-Your app will be available at: `https://YOUR_USERNAME.github.io/rummy-score-tracker`
+Your app will be available at: `https://Kiran200790.github.io/rummy-score-tracker`
 
-## 📱 Step 3: Install on iPhone
+## 📱 Step 4: Install on iPhone
 
 ### Method 1: Add to Home Screen (Recommended)
 1. Open **Safari** on your iPhone
-2. Go to: `https://YOUR_USERNAME.github.io/rummy-score-tracker`
+2. Go to: `https://Kiran200790.github.io/rummy-score-tracker`
 3. Tap the **Share** button (square with arrow up)
 4. Scroll down and tap **"Add to Home Screen"**
 5. Customize the name if needed
