@@ -1443,4 +1443,57 @@ select:focus {
         color: white !important;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
     }
+    
+    /* Fix score page containers */
+    .score-table-container {
+        background: rgba(30, 30, 50, 0.95) !important;
+        background: linear-gradient(135deg, 
+            rgba(30, 30, 50, 0.95) 0%, 
+            rgba(20, 20, 40, 0.9) 50%, 
+            rgba(30, 30, 50, 0.95) 100%) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid rgba(88, 101, 242, 0.3) !important;
+    }
+    
+    /* Fix table wrapper */
+    .table-wrapper {
+        background: rgba(20, 20, 35, 0.9) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid rgba(88, 101, 242, 0.4) !important;
+    }
+    
+    /* Fix table sections */
+    .fixed-column {
+        background: rgba(88, 101, 242, 0.2) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    .totals-column {
+        background: rgba(88, 101, 242, 0.25) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    /* Fix table cells */
+    .table-cell {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    .table-header {
+        background: rgba(88, 101, 242, 0.6) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    /* Fix any remaining white backgrounds */
+    #game-section {
+        background: transparent !important;
+    }
+    
+    section {
+        background: transparent !important;
+    }
 }
