@@ -80,37 +80,24 @@ body::before {
 
 .app-header {
     background: linear-gradient(135deg, 
-        rgba(88, 101, 242, 0.4) 0%, 
-        rgba(120, 119, 198, 0.35) 25%,
-        rgba(88, 101, 242, 0.3) 50%,
-        rgba(74, 85, 162, 0.25) 75%,
-        rgba(88, 101, 242, 0.2) 100%) !important;
-    backdrop-filter: blur(var(--blur-amount)) saturate(200%) brightness(1.1) !important;
-    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(200%) brightness(1.1) !important;
-    border: 2px solid transparent !important;
-    border-image: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.4), 
-        rgba(255, 255, 255, 0.2), 
-        rgba(255, 255, 255, 0.1),
-        rgba(255, 255, 255, 0.3)) 1 !important;
-    border-bottom: 3px solid rgba(255, 255, 255, 0.25) !important;
+        rgba(88, 101, 242, 0.3), 
+        rgba(88, 101, 242, 0.25), 
+        rgba(88, 101, 242, 0.2)) !important;
+    backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
     color: white !important;
     text-align: center;
     padding: 3rem 2rem;
     box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.15),
-        0 4px 16px rgba(0, 0, 0, 0.1),
-        0 2px 8px rgba(0, 0, 0, 0.08),
-        inset 0 2px 0 rgba(255, 255, 255, 0.2),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-        inset 0 1px 32px rgba(255, 255, 255, 0.05) !important;
+        var(--shadow-glass),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     position: sticky;
     top: 0;
     z-index: 100;
     margin-bottom: 2rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    animation: headerGlow 4s ease-in-out infinite;
     position: relative;
     overflow: hidden;
     /* iOS Safari specific fixes */
@@ -155,32 +142,15 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.15) 0%, 
-        transparent 30%, 
-        rgba(255, 255, 255, 0.08) 60%,
-        transparent 100%);
-    pointer-events: none;
-    border-radius: inherit;
-    z-index: 1;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    animation: shimmer 3s infinite;
 }
 
 .app-header::after {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.6) 0%, 
-        rgba(255, 255, 255, 0.8) 50%, 
-        rgba(255, 255, 255, 0.6) 100%);
-    border-radius: 0 0 2px 2px;
-    z-index: 2;
     position: absolute;
     top: 0;
     left: 0;
@@ -229,118 +199,18 @@ body::before {
 
 .app-footer {
     background: linear-gradient(135deg, 
-        rgba(88, 101, 242, 0.25) 0%, 
-        rgba(120, 119, 198, 0.2) 25%,
-        rgba(88, 101, 242, 0.15) 50%,
-        rgba(74, 85, 162, 0.12) 75%,
-        rgba(88, 101, 242, 0.08) 100%) !important;
-    backdrop-filter: blur(var(--blur-amount)) saturate(200%) brightness(1.1) !important;
-    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(200%) brightness(1.1) !important;
+        rgba(88, 101, 242, 0.15), 
+        rgba(88, 101, 242, 0.1), 
+        rgba(88, 101, 242, 0.05)) !important;
+    backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
     text-align: center;
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
     color: var(--text-secondary);
     font-size: 0.95rem;
-    border-top: 3px solid rgba(255, 255, 255, 0.2) !important;
-    border-image: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.3), 
-        rgba(255, 255, 255, 0.15), 
-        rgba(255, 255, 255, 0.3)) 1 !important;
+    border-top: 1px solid var(--glass-border) !important;
     margin-top: 1rem;
     position: relative;
-    box-shadow: 
-        0 -8px 32px rgba(0, 0, 0, 0.1),
-        0 -4px 16px rgba(0, 0, 0, 0.08),
-        0 -2px 8px rgba(0, 0, 0, 0.05),
-        inset 0 2px 0 rgba(255, 255, 255, 0.15),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 1px 24px rgba(255, 255, 255, 0.03);
-    animation: footerGlow 5s ease-in-out infinite;
-}
-
-.app-footer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(-45deg, 
-        rgba(255, 255, 255, 0.12) 0%, 
-        transparent 30%, 
-        rgba(255, 255, 255, 0.06) 60%,
-        transparent 100%);
-    pointer-events: none;
-    border-radius: inherit;
-    z-index: 1;
-}
-
-.app-footer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        rgba(255, 255, 255, 0.4) 0%, 
-        rgba(255, 255, 255, 0.6) 50%, 
-        rgba(255, 255, 255, 0.4) 100%);
-    border-radius: 2px 2px 0 0;
-    z-index: 2;
-}
-
-/* Header and Footer Hover/Animation Effects */
-.app-header:hover {
-    transform: translateY(-1px);
-    box-shadow: 
-        0 12px 40px rgba(0, 0, 0, 0.18),
-        0 6px 20px rgba(0, 0, 0, 0.12),
-        0 3px 10px rgba(0, 0, 0, 0.1),
-        inset 0 3px 0 rgba(255, 255, 255, 0.25),
-        inset 0 -2px 0 rgba(255, 255, 255, 0.12),
-        inset 0 2px 40px rgba(255, 255, 255, 0.08) !important;
-}
-
-@keyframes headerGlow {
-    0%, 100% { 
-        box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.15),
-            0 4px 16px rgba(0, 0, 0, 0.1),
-            0 2px 8px rgba(0, 0, 0, 0.08),
-            inset 0 2px 0 rgba(255, 255, 255, 0.2),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 1px 32px rgba(255, 255, 255, 0.05);
-    }
-    50% { 
-        box-shadow: 
-            0 10px 40px rgba(88, 101, 242, 0.2),
-            0 6px 20px rgba(88, 101, 242, 0.15),
-            0 3px 12px rgba(88, 101, 242, 0.1),
-            inset 0 3px 0 rgba(255, 255, 255, 0.3),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.15),
-            inset 0 2px 40px rgba(255, 255, 255, 0.08);
-    }
-}
-
-@keyframes footerGlow {
-    0%, 100% { 
-        box-shadow: 
-            0 -8px 32px rgba(0, 0, 0, 0.1),
-            0 -4px 16px rgba(0, 0, 0, 0.08),
-            0 -2px 8px rgba(0, 0, 0, 0.05),
-            inset 0 2px 0 rgba(255, 255, 255, 0.15),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-            inset 0 1px 24px rgba(255, 255, 255, 0.03);
-    }
-    50% { 
-        box-shadow: 
-            0 -10px 40px rgba(88, 101, 242, 0.15),
-            0 -6px 20px rgba(88, 101, 242, 0.12),
-            0 -3px 12px rgba(88, 101, 242, 0.08),
-            inset 0 3px 0 rgba(255, 255, 255, 0.2),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.12),
-            inset 0 2px 32px rgba(255, 255, 255, 0.05);
-    }
 }
 
 /* Sections */
@@ -1504,59 +1374,6 @@ select:focus {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         color: white !important;
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 1000 !important;
-        min-height: auto !important;
-        padding: 1.5rem 2rem !important;
-        -webkit-transform: translateZ(0) !important;
-        transform: translateZ(0) !important;
-        will-change: transform !important;
-    }
-    
-    /* Compact header for better space usage */
-    .app-header h1 {
-        font-size: 1.5rem !important;
-        margin: 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    .app-header .subtitle {
-        font-size: 0.9rem !important;
-        margin-top: 0.25rem !important;
-        opacity: 0.9 !important;
-    }
-    
-    /* Add padding to body to account for fixed header */
-    body {
-        padding-top: 90px !important;
-    }
-    
-    /* Ensure main content doesn't overlap header */
-    .main-content {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    
-    /* Fix scroll container behavior for many players */
-    .score-table-container {
-        max-height: calc(100vh - 200px) !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        position: relative !important;
-    }
-    
-    /* Ensure proper spacing for many players */
-    .table-wrapper {
-        min-width: 100% !important;
-        position: relative !important;
-    }
-    
-    /* Prevent content from being hidden behind header */
-    #game-section {
-        padding-top: 1rem !important;
     }
     
     /* Fix main content background */

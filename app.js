@@ -14,7 +14,6 @@ class RummyTracker {
         this.updatePlayerInputs();
         this.setupInstallPrompt();
         this.handleShortcuts();
-        this.setupIOSScrollHandling();
     }
 
     // Event Listeners Setup
@@ -598,68 +597,6 @@ class RummyTracker {
             installPrompt.classList.add('hidden');
             this.showNotification('App installed successfully!', 'success');
         });
-    }
-
-    // iOS Safari header scroll fix
-    setupIOSScrollHandling() {
-        // Detect iOS Safari
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-        
-        if (isIOS || isSafari) {
-            // Prevent elastic scrolling from affecting header
-            let lastScrollTop = 0;
-            let scrollTimeout;
-            
-            const header = document.querySelector('.app-header');
-            if (header) {
-                // Force hardware acceleration
-                header.style.transform = 'translateZ(0)';
-                header.style.willChange = 'transform';
-            }
-            
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
-                // Clear previous timeout
-                if (scrollTimeout) {
-                    clearTimeout(scrollTimeout);
-                }
-                
-                // Ensure header stays fixed during scroll
-                if (header) {
-                    header.style.transform = 'translateZ(0)';
-                }
-                
-                // Debounce scroll end
-                scrollTimeout = setTimeout(() => {
-                    // Scroll ended - ensure header is properly positioned
-                    if (header) {
-                        header.style.transform = 'translateZ(0)';
-                    }
-                }, 150);
-                
-                lastScrollTop = scrollTop;
-            }, { passive: true });
-            
-            // Handle orientation changes
-            window.addEventListener('orientationchange', () => {
-                setTimeout(() => {
-                    // Force recalculation after orientation change
-                    if (header) {
-                        header.style.transform = 'translateZ(0)';
-                    }
-                    window.scrollTo(0, window.scrollY);
-                }, 100);
-            });
-            
-            // Handle resize events (for when keyboard appears)
-            window.addEventListener('resize', () => {
-                if (header) {
-                    header.style.transform = 'translateZ(0)';
-                }
-            });
-        }
     }
 }
 
