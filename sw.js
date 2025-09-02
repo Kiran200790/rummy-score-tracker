@@ -1,13 +1,13 @@
 // Service Worker for Rummy Score Tracker PWA
-const CACHE_NAME = 'rummy-tracker-v1.0.0';
+const CACHE_NAME = 'rummy-tracker-v1.0.1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png',
+    '/rummy-score-tracker/',
+    '/rummy-score-tracker/index.html',
+    '/rummy-score-tracker/styles.css',
+    '/rummy-score-tracker/app.js',
+    '/rummy-score-tracker/manifest.json',
+    '/rummy-score-tracker/icons/icon-192x192.png',
+    '/rummy-score-tracker/icons/icon-512x512.png',
     'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
