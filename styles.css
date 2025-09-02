@@ -80,19 +80,23 @@ body::before {
 
 .app-header {
     background: linear-gradient(135deg, 
-        rgba(88, 101, 242, 0.3), 
-        rgba(88, 101, 242, 0.25), 
-        rgba(88, 101, 242, 0.2)) !important;
-    backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
-    border: 1px solid var(--glass-border) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        rgba(88, 101, 242, 0.35) 0%, 
+        rgba(71, 82, 196, 0.3) 25%,
+        rgba(88, 101, 242, 0.25) 50%,
+        rgba(71, 82, 196, 0.2) 75%,
+        rgba(88, 101, 242, 0.15) 100%) !important;
+    backdrop-filter: blur(20px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.25) !important;
     color: white !important;
     text-align: center;
     padding: 3rem 2rem;
     box-shadow: 
-        var(--shadow-glass),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 4px 16px rgba(88, 101, 242, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.1) !important;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -142,22 +146,36 @@ body::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    animation: shimmer 3s infinite;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 25%,
+        transparent 50%,
+        rgba(88, 101, 242, 0.1) 75%,
+        rgba(71, 82, 196, 0.15) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .app-header::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 50%);
-    pointer-events: none;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.3), 
+        rgba(88, 101, 242, 0.2), 
+        rgba(71, 82, 196, 0.2),
+        rgba(255, 255, 255, 0.2));
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(1px);
+    opacity: 0.6;
 }
 
 @keyframes shimmer {
@@ -171,10 +189,18 @@ body::before {
     margin-bottom: 0.5rem;
     letter-spacing: -0.025em;
     text-shadow: 
-        0 2px 8px rgba(0, 0, 0, 0.3),
-        0 0 20px rgba(255, 255, 255, 0.1);
+        0 2px 8px rgba(0, 0, 0, 0.4),
+        0 4px 16px rgba(88, 101, 242, 0.3),
+        0 0 20px rgba(255, 255, 255, 0.15);
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.95), 
+        rgba(255, 255, 255, 0.85));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .app-header .subtitle {
@@ -182,9 +208,11 @@ body::before {
     font-size: 1rem;
     font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    text-shadow: 
+        0 1px 4px rgba(0, 0, 0, 0.3),
+        0 2px 8px rgba(88, 101, 242, 0.2);
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .main-content {
@@ -199,18 +227,102 @@ body::before {
 
 .app-footer {
     background: linear-gradient(135deg, 
-        rgba(88, 101, 242, 0.15), 
-        rgba(88, 101, 242, 0.1), 
-        rgba(88, 101, 242, 0.05)) !important;
-    backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+        rgba(88, 101, 242, 0.25) 0%, 
+        rgba(71, 82, 196, 0.2) 25%,
+        rgba(88, 101, 242, 0.15) 50%,
+        rgba(71, 82, 196, 0.1) 75%,
+        rgba(88, 101, 242, 0.08) 100%) !important;
+    backdrop-filter: blur(20px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
     text-align: center;
     padding: 1.5rem;
     color: var(--text-secondary);
     font-size: 0.95rem;
-    border-top: 1px solid var(--glass-border) !important;
+    border-top: 2px solid rgba(255, 255, 255, 0.2) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
     margin-top: 1rem;
     position: relative;
+    box-shadow: 
+        0 -8px 32px rgba(0, 0, 0, 0.4),
+        0 -4px 16px rgba(88, 101, 242, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Footer dual-layer glass effects */
+.app-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.06) 25%,
+        transparent 50%,
+        rgba(88, 101, 242, 0.08) 75%,
+        rgba(71, 82, 196, 0.12) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.app-footer::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        rgba(255, 255, 255, 0.2), 
+        rgba(88, 101, 242, 0.15), 
+        rgba(71, 82, 196, 0.15),
+        rgba(255, 255, 255, 0.15));
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(1px);
+    opacity: 0.4;
+}
+
+/* Header hover and animation effects */
+.app-header:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        0 6px 20px rgba(88, 101, 242, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.app-header:hover::before {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0.12) 25%,
+        transparent 50%,
+        rgba(88, 101, 242, 0.15) 75%,
+        rgba(71, 82, 196, 0.2) 100%);
+}
+
+/* Footer hover effects */
+.app-footer:hover {
+    transform: translateY(1px);
+    box-shadow: 
+        0 -12px 40px rgba(0, 0, 0, 0.5),
+        0 -6px 20px rgba(88, 101, 242, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.app-footer:hover::before {
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 25%,
+        transparent 50%,
+        rgba(88, 101, 242, 0.12) 75%,
+        rgba(71, 82, 196, 0.15) 100%);
 }
 
 /* Sections */
