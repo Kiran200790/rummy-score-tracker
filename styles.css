@@ -191,18 +191,24 @@ body::before {
     max-width: var(--container-max-width);
     margin: 0 auto;
     width: 100%;
-    background: var(--background-color);
+    background: var(--background-color) !important;
+    min-height: calc(100vh - 200px);
 }
 
 .app-footer {
-    background: var(--gradient-surface);
+    background: linear-gradient(135deg, 
+        rgba(88, 101, 242, 0.15), 
+        rgba(88, 101, 242, 0.1), 
+        rgba(88, 101, 242, 0.05)) !important;
+    backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
     text-align: center;
     padding: 1.5rem;
     color: var(--text-secondary);
     font-size: 0.95rem;
-    border-top: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--glass-border) !important;
     margin-top: 1rem;
+    position: relative;
 }
 
 /* Sections */
@@ -1161,6 +1167,59 @@ select:focus {
 
 .mt-0 { margin-top: 0; }
 .mt-1 { margin-top: var(--spacing-xs); }
+/* iOS PWA Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific styles */
+    body {
+        background: var(--background-color) !important;
+        -webkit-text-size-adjust: 100%;
+    }
+    
+    .app-header {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.2), 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1)) !important;
+        -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+        backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    }
+    
+    .main-content {
+        background: var(--background-color) !important;
+    }
+    
+    .app-footer {
+        background: var(--gradient-surface) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    /* Fix for iOS home screen icon cache */
+    .card, .section-header, .game-header {
+        -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+        backdrop-filter: blur(var(--blur-amount)) saturate(180%) !important;
+    }
+}
+
+/* PWA specific styles when installed */
+@media (display-mode: standalone) {
+    body {
+        background: var(--background-color) !important;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .app-header {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.2), 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1)) !important;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+}
+
 .mt-2 { margin-top: var(--spacing-sm); }
 .mt-3 { margin-top: var(--spacing-md); }
 .mt-4 { margin-top: var(--spacing-lg); }
@@ -1224,6 +1283,77 @@ select:focus {
     }
     50% { 
         box-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color), 0 0 30px var(--accent-color);
+    }
+}
+
+/* iOS-specific fixes for color consistency */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari specific styles */
+    
+    .app-header {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.2), 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1)) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    .main-content {
+        background: var(--background-color) !important;
+        background-color: #0a0a0f !important;
+    }
+    
+    .app-footer {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1), 
+            rgba(88, 101, 242, 0.05)) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    .section-header {
+        background: var(--glass-bg) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    .game-header {
+        background: var(--glass-bg) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    .card {
+        background: var(--glass-bg) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    /* Force consistent colors on iOS */
+    body {
+        background: radial-gradient(ellipse at top, #1a1a2e 0%, #16213e 50%, #0a0a0f 100%) !important;
+    }
+}
+
+/* PWA specific styles when installed */
+@media (display-mode: standalone) {
+    .app-header {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.2), 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1)) !important;
+        backdrop-filter: blur(16px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    }
+    
+    .main-content {
+        background: #0a0a0f !important;
+    }
+    
+    .app-footer {
+        background: linear-gradient(135deg, 
+            rgba(88, 101, 242, 0.15), 
+            rgba(88, 101, 242, 0.1), 
+            rgba(88, 101, 242, 0.05)) !important;
+        backdrop-filter: blur(16px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
     }
 }
 

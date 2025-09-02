@@ -2,185 +2,154 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 import math
 
-def create_joker_icon(size):
-    """Create a Joker-themed icon inspired by Batman movie aesthetic"""
-    # Create image with dark background
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 255))
+def create_friendly_rummy_icon(size):
+    """Create a friendly, colorful Rummy icon with cards and dice"""
+    # Create image with gradient background
+    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    # Colors inspired by Joker
-    bg_dark = (20, 20, 30)        # Very dark purple-black
-    face_white = (240, 240, 240)   # Pale white
-    joker_purple = (75, 0, 130)    # Dark purple
-    joker_green = (0, 100, 0)      # Dark green
-    blood_red = (139, 0, 0)        # Dark red
-    accent_gold = (255, 215, 0)    # Gold accent
+    # Friendly colors
+    bg_blue = (59, 130, 246)      # Nice blue
+    bg_purple = (139, 92, 246)    # Soft purple
+    card_white = (255, 255, 255)  # Clean white
+    card_red = (239, 68, 68)      # Bright red
+    card_black = (31, 41, 55)     # Dark gray
+    gold_accent = (251, 191, 36)  # Gold
+    green_accent = (34, 197, 94)  # Green
     
     center = size // 2
-    face_radius = int(size * 0.42)
+    radius = int(size * 0.48)
     
-    # Draw dark background circle
-    draw.ellipse([center-face_radius-10, center-face_radius-10, 
-                 center+face_radius+10, center+face_radius+10], 
-                fill=bg_dark)
+    # Draw gradient background circle
+    for i in range(radius):
+        progress = i / radius
+        r = int(bg_blue[0] + (bg_purple[0] - bg_blue[0]) * progress)
+        g = int(bg_blue[1] + (bg_purple[1] - bg_blue[1]) * progress)
+        b = int(bg_blue[2] + (bg_purple[2] - bg_blue[2]) * progress)
+        color = (r, g, b, 255)
+        
+        draw.ellipse([center-radius+i, center-radius+i, center+radius-i, center+radius-i], 
+                    fill=color)
     
-    # Draw face (pale white circle)
-    draw.ellipse([center-face_radius, center-face_radius, 
-                 center+face_radius, center+face_radius], 
-                fill=face_white, outline=joker_purple, width=max(2, size//64))
+    # Draw main border
+    draw.ellipse([center-radius, center-radius, center+radius, center+radius], 
+                outline=card_white, width=max(2, size//32))
     
-    # Draw Joker smile (exaggerated grin)
-    smile_width = int(face_radius * 1.4)
-    smile_height = int(face_radius * 0.6)
-    smile_y = center + int(face_radius * 0.1)
+    # Draw playing cards in a fan layout
+    card_width = int(size * 0.25)
+    card_height = int(size * 0.35)
+    card_radius = max(2, size // 32)
     
-    # Main smile arc
-    smile_bbox = [center - smile_width//2, smile_y - smile_height//2,
-                  center + smile_width//2, smile_y + smile_height//2]
-    draw.arc(smile_bbox, 0, 180, fill=blood_red, width=max(3, size//32))
+    # Three cards in fan formation
+    cards_data = [
+        (-size//6, -size//12, -15, card_red, "A"),    # Left card - Ace of Hearts
+        (0, -size//8, 0, card_black, "K"),           # Center card - King of Spades  
+        (size//6, -size//12, 15, card_red, "Q")      # Right card - Queen of Diamonds
+    ]
     
-    # Extended smile lines (like scars)
-    scar_extend = int(face_radius * 0.3)
-    left_scar_start = (center - smile_width//2, smile_y)
-    left_scar_end = (center - smile_width//2 - scar_extend, smile_y - scar_extend//2)
-    right_scar_start = (center + smile_width//2, smile_y)
-    right_scar_end = (center + smile_width//2 + scar_extend, smile_y - scar_extend//2)
+    for card_x, card_y, angle, suit_color, text in cards_data:
+        # Create temporary image for rotated card
+        card_img = Image.new('RGBA', (card_width + 20, card_height + 20), (0, 0, 0, 0))
+        card_draw = ImageDraw.Draw(card_img)
+        
+        # Draw card background
+        card_draw.rounded_rectangle([10, 10, card_width + 10, card_height + 10], 
+                                  radius=card_radius, fill=card_white, 
+                                  outline=(200, 200, 200), width=1)
+        
+        # Add card text/suit
+        if size >= 64:
+            try:
+                font_size = max(6, size // 20)
+                font = ImageFont.truetype("/System/Library/Fonts/Helvetica-Bold.ttc", font_size)
+            except:
+                font = ImageFont.load_default()
+            
+            # Card letter
+            bbox = card_draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+            text_x = 10 + (card_width - text_width) // 2
+            text_y = 10 + (card_height - text_height) // 2 - size//32
+            card_draw.text((text_x, text_y), text, fill=suit_color, font=font)
+            
+            # Small suit symbol
+            suit_symbols = {"A": "♥", "K": "♠", "Q": "♦"}
+            symbol = suit_symbols.get(text, "♣")
+            symbol_y = text_y + text_height + size//64
+            card_draw.text((text_x + text_width//2 - size//64, symbol_y), symbol, 
+                          fill=suit_color, font=font)
+        
+        # Rotate card
+        rotated_card = card_img.rotate(angle, expand=True)
+        
+        # Paste onto main image
+        paste_x = center + card_x - rotated_card.width // 2
+        paste_y = center + card_y - rotated_card.height // 2
+        img.paste(rotated_card, (paste_x, paste_y), rotated_card)
     
-    draw.line([left_scar_start, left_scar_end], fill=blood_red, width=max(2, size//48))
-    draw.line([right_scar_start, right_scar_end], fill=blood_red, width=max(2, size//48))
-    
-    # Draw eyes (menacing)
-    eye_radius = max(3, size // 24)
-    eye_y = center - int(face_radius * 0.2)
-    left_eye_x = center - int(face_radius * 0.3)
-    right_eye_x = center + int(face_radius * 0.3)
-    
-    # Dark eye sockets
-    socket_radius = eye_radius + max(2, size//32)
-    draw.ellipse([left_eye_x - socket_radius, eye_y - socket_radius,
-                 left_eye_x + socket_radius, eye_y + socket_radius], 
-                fill=bg_dark)
-    draw.ellipse([right_eye_x - socket_radius, eye_y - socket_radius,
-                 right_eye_x + socket_radius, eye_y + socket_radius], 
-                fill=bg_dark)
-    
-    # Eyes (piercing)
-    draw.ellipse([left_eye_x - eye_radius, eye_y - eye_radius,
-                 left_eye_x + eye_radius, eye_y + eye_radius], 
-                fill=accent_gold)
-    draw.ellipse([right_eye_x - eye_radius, eye_y - eye_radius,
-                 right_eye_x + eye_radius, eye_y + eye_radius], 
-                fill=accent_gold)
-    
-    # Eye pupils
-    pupil_radius = max(1, eye_radius // 2)
-    draw.ellipse([left_eye_x - pupil_radius, eye_y - pupil_radius,
-                 left_eye_x + pupil_radius, eye_y + pupil_radius], 
-                fill=(0, 0, 0))
-    draw.ellipse([right_eye_x - pupil_radius, eye_y - pupil_radius,
-                 right_eye_x + pupil_radius, eye_y + pupil_radius], 
-                fill=(0, 0, 0))
-    
-    # Draw playing card symbols (Joker's chaos theme)
+    # Draw dice in corner
     if size >= 96:
-        # Card suits around the face
-        suit_size = max(8, size // 16)
-        suit_distance = int(face_radius * 0.8)
+        dice_size = size // 8
+        dice_x = center + size // 4
+        dice_y = center + size // 4
         
-        # Spade (top)
-        spade_x, spade_y = center, center - suit_distance
-        draw_spade(draw, spade_x, spade_y, suit_size, joker_purple)
+        # Dice background with rounded corners
+        draw.rounded_rectangle([dice_x, dice_y, dice_x + dice_size, dice_y + dice_size], 
+                             radius=max(1, size//48), fill=card_white, 
+                             outline=card_black, width=max(1, size//64))
         
-        # Heart (right)  
-        heart_x, heart_y = center + suit_distance, center
-        draw_heart(draw, heart_x, heart_y, suit_size, blood_red)
+        # Dice dots (showing 5)
+        dot_size = max(1, size // 48)
+        margin = dice_size // 6
         
-        # Club (bottom)
-        club_x, club_y = center, center + suit_distance
-        draw_club(draw, club_x, club_y, suit_size, joker_green)
+        # Five dots pattern
+        dots = [
+            (dice_x + margin, dice_y + margin),                    # Top left
+            (dice_x + dice_size - margin, dice_y + margin),        # Top right
+            (dice_x + dice_size//2, dice_y + dice_size//2),        # Center
+            (dice_x + margin, dice_y + dice_size - margin),        # Bottom left
+            (dice_x + dice_size - margin, dice_y + dice_size - margin)  # Bottom right
+        ]
         
-        # Diamond (left)
-        diamond_x, diamond_y = center - suit_distance, center
-        draw_diamond(draw, diamond_x, diamond_y, suit_size, accent_gold)
+        for dot_x, dot_y in dots:
+            draw.ellipse([dot_x - dot_size//2, dot_y - dot_size//2, 
+                         dot_x + dot_size//2, dot_y + dot_size//2], fill=card_red)
     
-    # Add "JOKER" text if size is large enough
+    # Add small decorative elements
     if size >= 128:
-        try:
-            font_size = max(8, size // 20)
-            font = ImageFont.truetype("/System/Library/Fonts/Helvetica-Bold.ttc", font_size)
-        except:
-            font = ImageFont.load_default()
+        # Small sparkles around the design
+        sparkle_positions = [
+            (center - radius + size//16, center - radius//2),
+            (center + radius - size//16, center - radius//2),
+            (center - radius//2, center + radius - size//16),
+            (center + radius//2, center + radius - size//16)
+        ]
         
-        text = "JOKER"
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        text_x = center - text_width // 2
-        text_y = center + face_radius + max(5, size//32)
-        
-        # Text with outline
-        outline_width = max(1, size//128)
-        for dx in [-outline_width, 0, outline_width]:
-            for dy in [-outline_width, 0, outline_width]:
-                draw.text((text_x + dx, text_y + dy), text, fill=bg_dark, font=font)
-        draw.text((text_x, text_y), text, fill=accent_gold, font=font)
+        for sparkle_x, sparkle_y in sparkle_positions:
+            sparkle_size = max(2, size // 32)
+            draw.ellipse([sparkle_x - sparkle_size, sparkle_y - sparkle_size,
+                         sparkle_x + sparkle_size, sparkle_y + sparkle_size], 
+                        fill=gold_accent)
     
     return img
 
-def draw_spade(draw, x, y, size, color):
-    """Draw a spade symbol"""
-    points = [
-        (x, y - size),
-        (x - size//2, y),
-        (x - size//4, y + size//4),
-        (x + size//4, y + size//4),
-        (x + size//2, y),
-    ]
-    draw.polygon(points, fill=color)
-
-def draw_heart(draw, x, y, size, color):
-    """Draw a heart symbol"""
-    # Simple heart approximation
-    draw.ellipse([x - size//2, y - size//2, x, y], fill=color)
-    draw.ellipse([x, y - size//2, x + size//2, y], fill=color)
-    points = [(x - size//2, y), (x, y + size//2), (x + size//2, y)]
-    draw.polygon(points, fill=color)
-
-def draw_club(draw, x, y, size, color):
-    """Draw a club symbol"""
-    # Three circles for club
-    circle_r = size // 4
-    draw.ellipse([x - circle_r, y - size//2 - circle_r, x + circle_r, y - size//2 + circle_r], fill=color)
-    draw.ellipse([x - size//2 - circle_r, y - circle_r, x - size//2 + circle_r, y + circle_r], fill=color)
-    draw.ellipse([x + size//2 - circle_r, y - circle_r, x + size//2 + circle_r, y + circle_r], fill=color)
-    # Stem
-    draw.rectangle([x - size//8, y, x + size//8, y + size//2], fill=color)
-
-def draw_diamond(draw, x, y, size, color):
-    """Draw a diamond symbol"""
-    points = [
-        (x, y - size//2),
-        (x + size//2, y),
-        (x, y + size//2),
-        (x - size//2, y)
-    ]
-    draw.polygon(points, fill=color)
-
 def generate_all_icons():
-    """Generate all required PWA icon sizes with Joker theme"""
+    """Generate all required PWA icon sizes with friendly Rummy theme"""
     sizes = [72, 96, 128, 144, 152, 192, 384, 512]
     
     for size in sizes:
-        print(f"Generating Joker {size}x{size} icon...")
-        icon = create_joker_icon(size)
+        print(f"Generating friendly Rummy {size}x{size} icon...")
+        icon = create_friendly_rummy_icon(size)
         icon.save(f'icons/icon-{size}x{size}.png', 'PNG', optimize=True)
     
     # Create favicon
-    print("Generating Joker favicon...")
-    favicon = create_joker_icon(32)
+    print("Generating friendly favicon...")
+    favicon = create_friendly_rummy_icon(32)
     favicon.save('icons/favicon.ico', 'ICO')
     
-    print("All Joker-themed icons generated successfully!")
-    print("🃏 Your app now has a menacing Joker face icon! 🦇")
+    print("All friendly Rummy icons generated successfully!")
+    print("� Your app now has a colorful, welcoming card game icon! 🃏")
 
 if __name__ == "__main__":
     generate_all_icons()
