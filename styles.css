@@ -215,6 +215,55 @@ body::before {
     z-index: 2;
 }
 
+/* Header Controls */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.header-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.9rem;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+.control-btn.active {
+    background: rgba(88, 101, 242, 0.3);
+    border-color: rgba(88, 101, 242, 0.5);
+}
+
 .main-content {
     flex: 1;
     padding: 2rem;
@@ -730,6 +779,11 @@ select:focus {
     box-shadow: var(--shadow-light);
 }
 
+.legend-color.warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
 .legend-color.danger {
     background: linear-gradient(135deg, var(--danger-color), #c53030);
     box-shadow: 0 0 10px rgba(237, 66, 69, 0.3);
@@ -953,6 +1007,15 @@ select:focus {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+.total-cell.warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid var(--warning-color) !important;
+    animation: pulse-warning 2s infinite;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
 .total-cell.danger {
     background: linear-gradient(135deg, #450a0a, #7f1d1d) !important;
     color: #fca5a5 !important;
@@ -960,6 +1023,13 @@ select:focus {
     border: 1px solid var(--danger-color) !important;
     animation: pulse-danger 2s infinite;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.player-cell.warning {
+    background: #fef3c7 !important;
+    color: #f59e0b !important;
+    font-weight: 700 !important;
+    animation: pulse-warning 2s infinite;
 }
 
 .player-cell.danger {
@@ -1023,6 +1093,16 @@ select:focus {
         0 4px 16px rgba(87, 242, 135, 0.2);
 }
 
+.score-input.warning {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: var(--warning-color);
+    color: #f59e0b;
+    box-shadow: 
+        inset 0 2px 8px rgba(0, 0, 0, 0.1),
+        0 0 20px rgba(245, 158, 11, 0.3),
+        0 4px 16px rgba(245, 158, 11, 0.2);
+}
+
 .score-input.danger {
     background: rgba(237, 66, 69, 0.2);
     border-color: var(--danger-color);
@@ -1057,6 +1137,13 @@ select:focus {
     text-shadow: 0 0 3px rgba(87, 242, 135, 0.5);
 }
 
+.editable-score.warning {
+    background: #fef3c7;
+    color: #f59e0b;
+    font-weight: 700;
+    animation: pulse-warning 2s infinite;
+}
+
 .editable-score.danger {
     background: #fef2f2;
     color: var(--danger-color);
@@ -1064,11 +1151,19 @@ select:focus {
     animation: pulse-danger 2s infinite;
 }
 
+.player-cell.eliminated {
+    background: #374151 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+    font-style: italic;
+}
+
 .eliminated {
     background: #6b7280 !important;
-    color: #ffffff !important;
+    color: #000000 !important;
     font-weight: 700 !important;
-    opacity: 0.7;
+    opacity: 1;
 }
 
 .eliminated-score {
@@ -1081,6 +1176,15 @@ select:focus {
 .eliminated-cell {
     background: #f3f4f6 !important;
     opacity: 0.7;
+}
+
+@keyframes pulse-warning {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+    }
 }
 
 @keyframes pulse-danger {
@@ -1147,6 +1251,21 @@ select:focus {
     
     .app-header h1 {
         font-size: 1.8rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .header-controls {
+        gap: 0.75rem;
+    }
+
+    .control-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.8rem;
     }
     
     .card {

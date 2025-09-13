@@ -41,7 +41,23 @@
     <div id="app">
         <!-- Header -->
         <header class="app-header">
-            <h1><i class="fas fa-dice"></i> Rummy Score Tracker</h1>
+            <div class="header-content">
+                <h1><i class="fas fa-dice"></i> Rummy Score Tracker</h1>
+                <div class="header-controls">
+                    <button id="zoom-out" class="control-btn" title="Zoom Out (Ctrl + -)">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button id="zoom-reset" class="control-btn" title="Reset Zoom (Ctrl + 0)">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button id="zoom-in" class="control-btn" title="Zoom In (Ctrl + +)">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button id="fullscreen-toggle" class="control-btn" title="Toggle Fullscreen (F11)">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
         </header>
 
         <!-- Main Content -->
@@ -56,11 +72,11 @@
                         <select id="player-count">
                             <option value="2">2 Players</option>
                             <option value="3">3 Players</option>
-                            <option value="4" selected>4 Players</option>
+                            <option value="4">4 Players</option>
                             <option value="5">5 Players</option>
                             <option value="6">6 Players</option>
                             <option value="7">7 Players</option>
-                            <option value="8">8 Players</option>
+                            <option value="8" selected>8 Players</option>
                             <option value="9">9 Players</option>
                             <option value="10">10 Players</option>
                         </select>

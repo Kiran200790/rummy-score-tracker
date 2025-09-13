@@ -5,15 +5,131 @@ class RummyTracker {
         this.players = [];
         this.scores = [];
         this.currentRound = 1;
+        this.previousTotals = []; // Track previous scores for sound notifications
+        this.currentZoom = 1; // Track zoom level
         
         this.init();
     }
 
     init() {
         this.setupEventListeners();
-        this.updatePlayerInputs();
+        // Add a small delay to ensure DOM is fully ready, then populate default names
+        setTimeout(() => {
+            this.updatePlayerInputs();
+        }, 100);
         this.setupInstallPrompt();
         this.handleShortcuts();
+    }
+
+    // Sound Notification
+    playDangerZoneSound() {
+        try {
+            // Create audio context for notification sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create a sequence of beeps for danger alert
+            const playBeep = (frequency, startTime, duration) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, startTime);
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0, startTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, startTime + 0.01);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + duration);
+            };
+            
+            // Play warning sound sequence (3 beeps)
+            const now = audioContext.currentTime;
+            playBeep(800, now, 0.2);        // High beep
+            playBeep(600, now + 0.25, 0.2); // Medium beep  
+            playBeep(800, now + 0.5, 0.2);  // High beep
+            
+        } catch (error) {
+            console.log('Audio notification not supported:', error);
+        }
+    }
+
+    // Zoom and Fullscreen Controls
+    zoomIn() {
+        this.currentZoom = (this.currentZoom || 1) + 0.1;
+        this.applyZoom();
+    }
+
+    zoomOut() {
+        this.currentZoom = Math.max(0.5, (this.currentZoom || 1) - 0.1);
+        this.applyZoom();
+    }
+
+    zoomReset() {
+        this.currentZoom = 1;
+        this.applyZoom();
+    }
+
+    applyZoom() {
+        const app = document.getElementById('app');
+        app.style.transform = `scale(${this.currentZoom})`;
+        app.style.transformOrigin = 'top center';
+        
+        // Adjust body height to prevent scroll issues
+        document.body.style.height = `${100 / this.currentZoom}vh`;
+        
+        // Update zoom reset button to show current zoom level
+        const resetBtn = document.getElementById('zoom-reset');
+        resetBtn.title = `Reset Zoom (${Math.round(this.currentZoom * 100)}%)`;
+    }
+
+    toggleFullscreen() {
+        const fullscreenBtn = document.getElementById('fullscreen-toggle');
+        const icon = fullscreenBtn.querySelector('i');
+        
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            document.documentElement.requestFullscreen().then(() => {
+                icon.className = 'fas fa-compress';
+                fullscreenBtn.title = 'Exit Fullscreen (F11)';
+                fullscreenBtn.classList.add('active');
+            }).catch(err => {
+                console.log('Fullscreen not supported:', err);
+                this.showNotification('Fullscreen not supported', 'warning');
+            });
+        } else {
+            // Exit fullscreen
+            document.exitFullscreen().then(() => {
+                icon.className = 'fas fa-expand';
+                fullscreenBtn.title = 'Toggle Fullscreen (F11)';
+                fullscreenBtn.classList.remove('active');
+            });
+        }
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Zoom shortcuts
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === '+' || e.key === '=') {
+                e.preventDefault();
+                this.zoomIn();
+            } else if (e.key === '-') {
+                e.preventDefault();
+                this.zoomOut();
+            } else if (e.key === '0') {
+                e.preventDefault();
+                this.zoomReset();
+            }
+        }
+        
+        // Fullscreen shortcut (F11)
+        if (e.key === 'F11') {
+            e.preventDefault();
+            this.toggleFullscreen();
+        }
     }
 
     // Event Listeners Setup
@@ -25,6 +141,15 @@ class RummyTracker {
         // Game section
         document.getElementById('add-round').addEventListener('click', () => this.addRound());
         document.getElementById('new-game').addEventListener('click', () => this.newGame());
+
+        // Zoom and fullscreen controls
+        document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
+        document.getElementById('zoom-reset').addEventListener('click', () => this.zoomReset());
+        document.getElementById('fullscreen-toggle').addEventListener('click', () => this.toggleFullscreen());
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
     }
 
     // Handle URL shortcuts
@@ -43,12 +168,21 @@ class RummyTracker {
         const container = document.getElementById('player-names');
         container.innerHTML = '';
 
+        // Default names list - will use first N names based on player count
+        const defaultNames = ['Kanth', 'Hari', 'Krishna', 'Anu', 'Ranga', 'Nandu', 'Pinky', 'Kiran'];
+
         for (let i = 1; i <= count; i++) {
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = `Player ${i} Name`;
             input.id = `player-${i}`;
             input.required = true;
+            
+            // Set default value if we have a default name for this position
+            if (i <= defaultNames.length) {
+                input.value = defaultNames[i - 1];
+            }
+            
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') this.startGame();
             });
@@ -73,6 +207,7 @@ class RummyTracker {
 
         // Initialize game
         this.scores = this.players.map(() => []);
+        this.previousTotals = this.players.map(() => 0); // Initialize previous totals for sound notifications
         this.currentRound = 1;
 
         this.showSection('game-section');
@@ -136,18 +271,20 @@ class RummyTracker {
         // Player names
         this.players.forEach((name, index) => {
             const total = this.getTotalScore(index);
-            const isDanger = total >= 200 && total < 250;
-            const isEliminated = total >= 250;
+            const isWarning = total >= 200 && total < 230;  // Yellow/orange zone (200-229)
+            const isDanger = total >= 230 && total < 250;   // Red zone (230-249)
+            const isEliminated = total >= 250;              // Eliminated (250+)
             
             let cellClass = 'player-cell';
             if (isEliminated) {
                 cellClass += ' eliminated';
             } else if (isDanger) {
                 cellClass += ' danger';
+            } else if (isWarning) {
+                cellClass += ' warning';
             }
             
-            const displayName = isEliminated ? `${name} (OUT)` : name;
-            const cell = this.createTableCell(displayName, cellClass);
+            const cell = this.createTableCell(name, cellClass);
             container.appendChild(cell);
         });
     }
@@ -233,23 +370,46 @@ class RummyTracker {
         const header = this.createTableCell('Total', 'table-header');
         container.appendChild(header);
 
+        // Check for players entering danger zone (230+)
+        let playersEnteringDangerZone = [];
+
         // Player totals
         this.players.forEach((_, index) => {
             const total = this.getTotalScore(index);
-            const isDanger = total >= 200 && total < 250;
-            const isEliminated = total >= 250;
+            const previousTotal = this.previousTotals[index] || 0;
+            
+            const isWarning = total >= 200 && total < 230;  // Yellow/orange zone (200-229)
+            const isDanger = total >= 230 && total < 250;   // Red zone (230-249)
+            const isEliminated = total >= 250;              // Eliminated (250+)
+            
+            // Check if player just entered danger zone (230+)
+            if ((isDanger || isEliminated) && previousTotal < 230) {
+                playersEnteringDangerZone.push(this.players[index]);
+            }
             
             let cellClass = 'total-cell';
             if (isEliminated) {
                 cellClass += ' eliminated';
             } else if (isDanger) {
                 cellClass += ' danger';
+            } else if (isWarning) {
+                cellClass += ' warning';
             }
             
             const displayTotal = isEliminated ? 'OUT' : total;
             const cell = this.createTableCell(displayTotal, cellClass);
             container.appendChild(cell);
         });
+
+        // Update previous totals for next comparison
+        this.previousTotals = this.players.map((_, index) => this.getTotalScore(index));
+
+        // Play sound and show notification if any player entered danger zone
+        if (playersEnteringDangerZone.length > 0) {
+            this.playDangerZoneSound();
+            const playerNames = playersEnteringDangerZone.join(', ');
+            this.showNotification(`⚠️ DANGER ZONE: ${playerNames} reached 230+ points!`, 'danger');
+        }
     }
 
     updateRoundInfo() {
@@ -442,6 +602,7 @@ class RummyTracker {
         let invalidPlayers = [];
         let emptyPlayers = [];
         
+        // First pass: check for R count and identify empty players
         for (let playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
             const score = this.scores[playerIndex][currentRoundIndex];
             
@@ -455,10 +616,42 @@ class RummyTracker {
             }
             
             if (score === null || score === undefined) {
-                emptyPlayers.push(this.players[playerIndex]);
+                emptyPlayers.push(playerIndex);
             } else if (score === 'R') {
                 rCount++;
-            } else {
+            }
+        }
+        
+        // Check if we have at least one winner (R) before auto-filling
+        if (rCount === 0) {
+            return {
+                valid: false,
+                message: 'Every round must have exactly one winner (R).'
+            };
+        }
+        
+        if (rCount > 1) {
+            return {
+                valid: false,
+                message: 'Only one player can win each round.'
+            };
+        }
+        
+        // Auto-fill empty scores with 20 for active players
+        emptyPlayers.forEach(playerIndex => {
+            this.scores[playerIndex][currentRoundIndex] = 20;
+        });
+        
+        // Second pass: validate all scores are in proper range
+        for (let playerIndex = 0; playerIndex < this.players.length; playerIndex++) {
+            const score = this.scores[playerIndex][currentRoundIndex];
+            
+            // Skip eliminated players
+            if (this.isPlayerEliminated(playerIndex)) {
+                continue;
+            }
+            
+            if (score !== 'R') {
                 // Check if numeric score is in valid range (2-80)
                 const numScore = parseInt(score);
                 if (isNaN(numScore) || numScore < 2 || numScore > 80) {
@@ -476,34 +669,11 @@ class RummyTracker {
             };
         }
         
-        // Check for empty scores (only for active players)
-        if (emptyPlayers.length > 0) {
-            return {
-                valid: false,
-                message: `Please enter scores for: ${emptyPlayers.join(', ')}`
-            };
-        }
-        
         // Check for invalid score ranges
         if (invalidPlayers.length > 0) {
             return {
                 valid: false,
                 message: `Invalid scores for: ${invalidPlayers.join(', ')}. Use 2-80 or R for winner.`
-            };
-        }
-        
-        // Check for exactly one winner (among active players)
-        if (rCount === 0) {
-            return {
-                valid: false,
-                message: 'Every round must have exactly one winner (R).'
-            };
-        }
-        
-        if (rCount > 1) {
-            return {
-                valid: false,
-                message: 'Only one player can win each round.'
             };
         }
         
