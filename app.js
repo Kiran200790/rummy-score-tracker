@@ -7,6 +7,7 @@ class RummyTracker {
         this.currentRound = 1;
         this.previousTotals = []; // Track previous scores for sound notifications
         this.currentZoom = 1; // Track zoom level
+        this.currentHighlighting = { leaders: [], atRisk: [] }; // Track current highlighting
         
         this.init();
     }
@@ -233,6 +234,12 @@ class RummyTracker {
 
         this.currentRound++;
         this.updateGameBoard();
+        
+        // Highlight players based on total scores after round completion AND after game board update
+        setTimeout(() => {
+            this.highlightTotalScoreLeaders();
+        }, 100); // Small delay to ensure DOM is updated
+        
         this.autoScrollToLatest();
         
         // Check for eliminations at the start of new rounds
@@ -249,6 +256,20 @@ class RummyTracker {
             this.players = [];
             this.scores = [];
             this.currentRound = 1;
+            
+            // Clear highlighting state
+            this.currentHighlighting = null;
+            
+            // Remove any existing highlighting classes and icons from DOM
+            const playerCells = document.querySelectorAll('.table-cell.player-cell');
+            playerCells.forEach(cell => {
+                // Remove highlighting classes
+                cell.classList.remove('winner-highlight', 'danger-highlight');
+                
+                // Remove highlighting icons
+                const existingIcons = cell.querySelectorAll('.highlight-icon');
+                existingIcons.forEach(icon => icon.remove());
+            });
         }
     }
 
@@ -275,6 +296,10 @@ class RummyTracker {
             const isDanger = total >= 230 && total < 250;   // Red zone (230-249)
             const isEliminated = total >= 250;              // Eliminated (250+)
             
+            // Count how many "R" scores this player has
+            const rCount = this.getRCount(index);
+            const asterisks = '*'.repeat(rCount);
+            
             let cellClass = 'player-cell';
             if (isEliminated) {
                 cellClass += ' eliminated';
@@ -284,9 +309,12 @@ class RummyTracker {
                 cellClass += ' warning';
             }
             
-            const cell = this.createTableCell(name, cellClass);
+            const cell = this.createPlayerCellWithStars(name, asterisks, cellClass);
             container.appendChild(cell);
         });
+        
+        // Reapply highlighting after creating cells
+        this.reapplyStoredHighlighting();
     }
 
     updateRoundsGrid() {
@@ -413,13 +441,189 @@ class RummyTracker {
     }
 
     updateRoundInfo() {
-        document.getElementById('current-round').textContent = this.currentRound - 1;
+        const roundElement = document.getElementById('current-round');
+        if (roundElement) {
+            roundElement.textContent = this.currentRound - 1;
+        }
+    }
+
+    highlightTotalScoreLeaders() {
+        // Get all player cells
+        const playerCells = document.querySelectorAll('.player-cell');
+        
+        // Remove existing total score highlighting
+        playerCells.forEach(cell => {
+            cell.classList.remove('total-leader', 'total-at-risk');
+            // Remove icons from text content - handle both structured and simple layouts
+            const playerNameDiv = cell.querySelector('.player-name');
+            if (playerNameDiv) {
+                playerNameDiv.textContent = playerNameDiv.textContent.replace('🏆 ', '').replace('⚠ ', '');
+            } else {
+                cell.textContent = cell.textContent.replace('🏆 ', '').replace('⚠ ', '');
+            }
+        });
+
+        // Only highlight if we have at least one completed round
+        if (this.currentRound <= 1 || !this.scores || this.scores.length === 0) {
+            return;
+        }
+
+        // Calculate total scores for active players only (not eliminated)
+        const activePlayers = [];
+        this.players.forEach((player, index) => {
+            const totalScore = this.getTotalScore(index);
+            // Only include players who are not eliminated (< 250)
+            if (totalScore < 250) {
+                activePlayers.push({ 
+                    index, 
+                    player, 
+                    totalScore 
+                });
+            }
+        });
+
+        // Need at least 2 active players to show highlighting
+        if (activePlayers.length < 2) {
+            return;
+        }
+
+        // Sort by total score (lowest first)
+        activePlayers.sort((a, b) => a.totalScore - b.totalScore);
+        
+        // Find lowest and highest total scores
+        const lowestTotal = activePlayers[0].totalScore;
+        const highestTotal = activePlayers[activePlayers.length - 1].totalScore;
+        
+        // Don't highlight if all active players have the same total
+        if (lowestTotal === highestTotal) {
+            return;
+        }
+
+        // Find all players with lowest total score (leaders)
+        const leaders = activePlayers.filter(p => p.totalScore === lowestTotal);
+        
+        // Find all players with highest total score (at risk)
+        const atRiskPlayers = activePlayers.filter(p => p.totalScore === highestTotal);
+
+        console.log('🏆 Leaders (lowest scores):', leaders);
+        console.log('🚨 At risk (highest scores):', atRiskPlayers);
+
+        // Store current highlighting state
+        this.currentHighlighting = {
+            leaders: leaders.map(l => l.index),
+            atRisk: atRiskPlayers.map(a => a.index)
+        };
+
+        // Apply leader highlighting (crown for lowest total scores)
+        leaders.forEach(leader => {
+            const playerCell = playerCells[leader.index]; // No +1 needed since playerCells doesn't include header
+            if (playerCell) {
+                playerCell.classList.add('total-leader');
+                // Add crown icon to the player name div if it exists, otherwise to textContent
+                const playerNameDiv = playerCell.querySelector('.player-name');
+                if (playerNameDiv) {
+                    if (!playerNameDiv.textContent.includes('🏆')) {
+                        playerNameDiv.textContent = `🏆 ${playerNameDiv.textContent}`;
+                    }
+                } else {
+                    if (!playerCell.textContent.includes('🏆')) {
+                        playerCell.textContent = `🏆 ${playerCell.textContent}`;
+                    }
+                }
+                console.log('✅ Added total-leader class to:', playerCell.textContent);
+            }
+        });
+
+        // Apply at-risk highlighting (warning for highest total scores)
+        atRiskPlayers.forEach(atRisk => {
+            const playerCell = playerCells[atRisk.index]; // No +1 needed since playerCells doesn't include header
+            if (playerCell) {
+                playerCell.classList.add('total-at-risk');
+                // Add warning icon to the player name div if it exists, otherwise to textContent
+                const playerNameDiv = playerCell.querySelector('.player-name');
+                if (playerNameDiv) {
+                    if (!playerNameDiv.textContent.includes('⚠')) {
+                        playerNameDiv.textContent = `⚠ ${playerNameDiv.textContent}`;
+                    }
+                } else {
+                    if (!playerCell.textContent.includes('⚠')) {
+                        playerCell.textContent = `⚠ ${playerCell.textContent}`;
+                    }
+                }
+                console.log('✅ Added total-at-risk class to:', playerCell.textContent);
+            }
+        });
+    }
+
+    reapplyStoredHighlighting() {
+        const playerCells = document.querySelectorAll('.player-cell');
+        
+        // Apply stored leader highlighting
+        this.currentHighlighting.leaders.forEach(index => {
+            const playerCell = playerCells[index]; // No +1 needed since playerCells doesn't include header
+            if (playerCell) {
+                playerCell.classList.add('total-leader');
+                // Add crown icon to the player name div if it exists, otherwise to textContent
+                const playerNameDiv = playerCell.querySelector('.player-name');
+                if (playerNameDiv) {
+                    if (!playerNameDiv.textContent.includes('🏆')) {
+                        playerNameDiv.textContent = `🏆 ${playerNameDiv.textContent}`;
+                    }
+                } else {
+                    if (!playerCell.textContent.includes('🏆')) {
+                        playerCell.textContent = `🏆 ${playerCell.textContent}`;
+                    }
+                }
+            }
+        });
+
+        // Apply stored at-risk highlighting
+        this.currentHighlighting.atRisk.forEach(index => {
+            const playerCell = playerCells[index]; // No +1 needed since playerCells doesn't include header
+            if (playerCell) {
+                playerCell.classList.add('total-at-risk');
+                // Add warning icon to the player name div if it exists, otherwise to textContent
+                const playerNameDiv = playerCell.querySelector('.player-name');
+                if (playerNameDiv) {
+                    if (!playerNameDiv.textContent.includes('⚠')) {
+                        playerNameDiv.textContent = `⚠ ${playerNameDiv.textContent}`;
+                    }
+                } else {
+                    if (!playerCell.textContent.includes('⚠')) {
+                        playerCell.textContent = `⚠ ${playerCell.textContent}`;
+                    }
+                }
+            }
+        });
     }
 
     createTableCell(content, className) {
         const cell = document.createElement('div');
         cell.className = `table-cell ${className}`;
         cell.textContent = content;
+        return cell;
+    }
+
+    createPlayerCellWithStars(playerName, asterisks, className) {
+        const cell = document.createElement('div');
+        cell.className = `table-cell ${className}`;
+        
+        if (asterisks) {
+            // Create container for stacked layout
+            const starsDiv = document.createElement('div');
+            starsDiv.className = 'r-score-stars';
+            starsDiv.textContent = asterisks;
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'player-name';
+            nameDiv.textContent = playerName;
+            
+            cell.appendChild(starsDiv);
+            cell.appendChild(nameDiv);
+        } else {
+            cell.textContent = playerName;
+        }
+        
         return cell;
     }
 
@@ -548,6 +752,12 @@ class RummyTracker {
             if (score === 'R' || score === null) return sum;
             return sum + (score || 0);
         }, 0);
+    }
+
+    // Count how many "R" scores a player has
+    getRCount(playerIndex) {
+        if (!this.scores[playerIndex]) return 0;
+        return this.scores[playerIndex].filter(score => score === 'R').length;
     }
 
     // Check and handle player eliminations at the start of new rounds

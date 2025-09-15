@@ -264,6 +264,49 @@ body::before {
     border-color: rgba(88, 101, 242, 0.5);
 }
 
+/* Player highlighting classes kept for potential future use */
+
+/* Small icon styling */
+.player-cell.total-leader,
+.player-cell.total-at-risk {
+    font-size: 0.9rem; /* Slightly smaller font to make icons more subtle */
+}
+
+/* Style for R-score asterisks - Force vertical layout */
+.table-cell.player-cell {
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0.3rem !important;
+    display: flex !important;
+    height: auto !important;
+    min-height: 50px !important;
+}
+
+/* Ensure stars and names stack vertically */
+.table-cell.player-cell .r-score-stars,
+.table-cell.player-cell .player-name {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+}
+
+.r-score-stars {
+    font-size: 0.7rem;
+    color: #ffffff;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    order: 1;
+}
+
+.player-name {
+    font-size: 0.95rem;
+    line-height: 1.2;
+    order: 2;
+}
+
 .main-content {
     flex: 1;
     padding: 2rem;
@@ -999,15 +1042,17 @@ select:focus {
     background: rgba(255, 255, 255, 0.02);
 }
 
-.total-cell {
-    background: linear-gradient(135deg, #1e293b, #334155);
-    color: #e2e8f0;
-    font-weight: 700;
-    border: 1px solid var(--border-color);
+.table-cell.total-cell {
+    background: linear-gradient(135deg, #1a1a2e, #16213e) !important;
+    color: #e2e8f0 !important;
+    font-weight: 900 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(var(--blur-amount)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(180%);
 }
 
-.total-cell.warning {
+.table-cell.total-cell.warning {
     background: linear-gradient(135deg, #f59e0b, #d97706) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
@@ -1016,7 +1061,7 @@ select:focus {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.total-cell.danger {
+.table-cell.total-cell.danger {
     background: linear-gradient(135deg, #450a0a, #7f1d1d) !important;
     color: #fca5a5 !important;
     font-weight: 700 !important;
