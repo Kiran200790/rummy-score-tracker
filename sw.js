@@ -1,5 +1,5 @@
 // Service Worker for Rummy Score Tracker PWA
-const CACHE_NAME = 'rummy-tracker-v1.1.0';
+const CACHE_NAME = 'rummy-tracker-v1.0.1';
 const urlsToCache = [
     '/rummy-score-tracker/',
     '/rummy-score-tracker/index.html',
