@@ -14,12 +14,79 @@ class RummyTracker {
 
     init() {
         this.setupEventListeners();
+        // Load saved game data first
+        this.loadGameData();
         // Add a small delay to ensure DOM is fully ready, then populate default names
         setTimeout(() => {
             this.updatePlayerInputs();
         }, 100);
         this.setupInstallPrompt();
         this.handleShortcuts();
+    }
+
+    // Data Persistence Methods
+    saveGameData() {
+        const gameData = {
+            players: this.players,
+            scores: this.scores,
+            currentRound: this.currentRound,
+            currentHighlighting: this.currentHighlighting,
+            previousTotals: this.previousTotals,
+            timestamp: Date.now()
+        };
+        
+        try {
+            localStorage.setItem('rummyGameData', JSON.stringify(gameData));
+        } catch (error) {
+            console.warn('Failed to save game data:', error);
+        }
+    }
+
+    loadGameData() {
+        try {
+            const savedData = localStorage.getItem('rummyGameData');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                
+                // Check if data is recent (within 24 hours)
+                const twentyFourHours = 24 * 60 * 60 * 1000;
+                if (gameData.timestamp && (Date.now() - gameData.timestamp) < twentyFourHours) {
+                    this.players = gameData.players || [];
+                    this.scores = gameData.scores || [];
+                    this.currentRound = gameData.currentRound || 1;
+                    this.currentHighlighting = gameData.currentHighlighting || { leaders: [], atRisk: [] };
+                    this.previousTotals = gameData.previousTotals || [];
+                    
+                    // Restore the game state in the UI
+                    if (this.players.length > 0) {
+                        this.restoreGameUI();
+                    }
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to load game data:', error);
+        }
+    }
+
+    restoreGameUI() {
+        // Switch to game section and restore the UI
+        this.showSection('game-section');
+        this.updateGameBoard();
+        
+        // Restore highlighting if it exists
+        if (this.currentHighlighting) {
+            setTimeout(() => {
+                this.reapplyStoredHighlighting();
+            }, 100);
+        }
+    }
+
+    clearGameData() {
+        try {
+            localStorage.removeItem('rummyGameData');
+        } catch (error) {
+            console.warn('Failed to clear game data:', error);
+        }
     }
 
     // Sound Notification
@@ -214,6 +281,9 @@ class RummyTracker {
         this.showSection('game-section');
         this.addRound();
         this.showNotification('Game started!', 'success');
+        
+        // Save initial game state
+        this.saveGameData();
     }
 
     addRound() {
@@ -239,6 +309,9 @@ class RummyTracker {
         setTimeout(() => {
             this.highlightTotalScoreLeaders();
         }, 100); // Small delay to ensure DOM is updated
+        
+        // Save game state after adding new round
+        this.saveGameData();
         
         this.autoScrollToLatest();
         
@@ -270,6 +343,9 @@ class RummyTracker {
                 const existingIcons = cell.querySelectorAll('.highlight-icon');
                 existingIcons.forEach(icon => icon.remove());
             });
+            
+            // Clear saved game data
+            this.clearGameData();
         }
     }
 
@@ -676,6 +752,9 @@ class RummyTracker {
         }
         
         this.updateTotalsColumn();
+        
+        // Save game state after score input
+        this.saveGameData();
         
         // Check if player will be eliminated after this round
         const newTotal = this.getTotalScore(playerIndex);
