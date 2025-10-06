@@ -14,10 +14,7 @@ class RummyTracker {
 
     init() {
         this.setupEventListeners();
-        // Add a small delay to ensure DOM is fully ready, then populate default names
-        setTimeout(() => {
-            this.updatePlayerInputs();
-        }, 100);
+        this.loadState(); // Load state from localStorage
         this.setupInstallPrompt();
         this.handleShortcuts();
     }
@@ -213,6 +210,7 @@ class RummyTracker {
 
         this.showSection('game-section');
         this.addRound();
+        this.saveState(); // Save initial state
         this.showNotification('Game started!', 'success');
     }
 
@@ -234,6 +232,7 @@ class RummyTracker {
 
         this.currentRound++;
         this.updateGameBoard();
+        this.saveState(); // Save state after adding a round
         
         // Highlight players based on total scores after round completion AND after game board update
         setTimeout(() => {
@@ -252,23 +251,30 @@ class RummyTracker {
 
     newGame() {
         if (confirm('Start a new game? Current progress will be lost.')) {
-            this.showSection('setup-section');
+            // Reset all game state completely
             this.players = [];
             this.scores = [];
             this.currentRound = 1;
+            this.previousTotals = [];
+            this.currentHighlighting = { leaders: [], atRisk: [] };
             
-            // Clear highlighting state
-            this.currentHighlighting = null;
+            // Clear saved state from localStorage
+            this.clearState();
+            
+            // Reset player inputs to default
+            document.getElementById('player-count').value = 8; // Reset dropdown
+            this.updatePlayerInputs();
+            
+            this.showSection('setup-section');
             
             // Remove any existing highlighting classes and icons from DOM
             const playerCells = document.querySelectorAll('.table-cell.player-cell');
             playerCells.forEach(cell => {
                 // Remove highlighting classes
-                cell.classList.remove('winner-highlight', 'danger-highlight');
+                cell.classList.remove('total-leader', 'total-at-risk', 'winner', 'danger', 'warning', 'eliminated');
                 
-                // Remove highlighting icons
-                const existingIcons = cell.querySelectorAll('.highlight-icon');
-                existingIcons.forEach(icon => icon.remove());
+                // Clear content to be safe
+                cell.innerHTML = '';
             });
         }
     }
@@ -279,6 +285,49 @@ class RummyTracker {
         this.updateRoundsGrid();
         this.updateTotalsColumn();
         this.updateRoundInfo();
+    }
+
+    // State Management
+    saveState() {
+        const gameState = {
+            players: this.players,
+            scores: this.scores,
+            currentRound: this.currentRound,
+            previousTotals: this.previousTotals,
+            currentHighlighting: this.currentHighlighting
+        };
+        localStorage.setItem('rummyGameState', JSON.stringify(gameState));
+    }
+
+    loadState() {
+        const savedState = localStorage.getItem('rummyGameState');
+        if (savedState) {
+            const gameState = JSON.parse(savedState);
+            this.players = gameState.players || [];
+            this.scores = gameState.scores || [];
+            this.currentRound = gameState.currentRound || 1;
+            this.previousTotals = gameState.previousTotals || [];
+            this.currentHighlighting = gameState.currentHighlighting || { leaders: [], atRisk: [] };
+
+            if (this.players.length > 0) {
+                this.showSection('game-section');
+                this.updateGameBoard();
+                this.highlightTotalScoreLeaders();
+                this.autoScrollToLatest();
+            } else {
+                // If no players, show setup
+                this.updatePlayerInputs();
+            }
+        } else {
+            // Add a small delay to ensure DOM is fully ready, then populate default names
+            setTimeout(() => {
+                this.updatePlayerInputs();
+            }, 100);
+        }
+    }
+
+    clearState() {
+        localStorage.removeItem('rummyGameState');
     }
 
     updatePlayersColumn() {
@@ -676,6 +725,7 @@ class RummyTracker {
         }
         
         this.updateTotalsColumn();
+        this.saveState(); // Save state after score input
         
         // Check if player will be eliminated after this round
         const newTotal = this.getTotalScore(playerIndex);
@@ -733,6 +783,7 @@ class RummyTracker {
             }
             
             this.updateTotalsColumn();
+            this.saveState(); // Save state after editing a score
         }
     }
 
